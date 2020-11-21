@@ -1,11 +1,9 @@
 <resources>
-    <style name="Theme.MyColors" parent="Theme.MaterialComponents.DayNight">
-        <item name="colorPrimary">@color/almost_white</item>
-        <item name="colorSurface">@color/almost_black</item>
-    </style>
-
     <style name="Theme.BookWishlist" parent="Theme.MyColors">
         <item name="android:windowLightStatusBar">true</item>
         <item name="android:statusBarColor">?colorPrimary</item>
+
+        <item name="android:windowLightNavigationBar">true</item>
+        <item name="android:navigationBarColor">?colorPrimary</item>
     </style>
 </resources>
