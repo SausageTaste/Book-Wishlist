@@ -17,12 +17,14 @@ public class DBManager {
     private static final int DB_VERSION = 2;
 
     public static class BookRecord {
-        public Integer id;
+        public Integer id = null;
 
-        public String title;
-        public String cover_url;
+        public String title = null;
+        public String cover_url = null;
 
-        public String note;
+        public String note = null;
+
+        public String url_origin = null;
     }
 
 
@@ -37,9 +39,13 @@ public class DBManager {
             db.execSQL(
                 "CREATE TABLE books (" +
                     "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+
                     "title TEXT, " +
                     "cover_url TEXT, " +
-                    "note TEXT" +
+
+                    "note TEXT," +
+
+                    "url_origin TEXT" +
                 ");"
             );
         }
@@ -53,7 +59,13 @@ public class DBManager {
         public void insert(final BookRecord info) {
             assert null == info.id;
             SQLiteDatabase db = this.getWritableDatabase();
-            db.execSQL("INSERT INTO books VALUES (" + "null, \"" + info.title + "\", \"" + info.cover_url + "\", \"" + info.note + "\")");
+            db.execSQL("INSERT INTO books VALUES (" +
+                "null, \"" +
+                info.title + "\", \"" +
+                info.cover_url + "\", \"" +
+                info.note + "\", \"" +
+                info.url_origin +
+            "\")");
         }
 
         public void update_row(final BookRecord info) {
@@ -71,13 +83,16 @@ public class DBManager {
             if (null != info.note) {
                 cv.put("note", info.note);
             }
+            if (null != info.url_origin) {
+                cv.put("url_origin", info.url_origin);
+            }
 
             db.update("books", cv, "_id = ?", new String[]{Integer.toString(info.id)});
         }
 
         public BookRecord search_with_title(final String title) {
             SQLiteDatabase db = this.getReadableDatabase();
-            Cursor cursor = db.rawQuery("SELECT _id, title, cover_url, note FROM books WHERE title=\"" + title + "\";", null);
+            Cursor cursor = db.rawQuery("SELECT _id, title, cover_url, note, url_origin FROM books WHERE title=\"" + title + "\";", null);
             BookRecord result = null;
 
             while (cursor.moveToNext()) {
@@ -89,6 +104,7 @@ public class DBManager {
                 result.title = cursor.getString(1);
                 result.cover_url = cursor.getString(2);
                 result.note = cursor.getString(3);
+                result.url_origin = cursor.getString(4);
             }
 
             return result;
@@ -96,7 +112,7 @@ public class DBManager {
 
         public BookRecord search_with_id(final int id) {
             SQLiteDatabase db = this.getReadableDatabase();
-            Cursor cursor = db.rawQuery("SELECT _id, title, cover_url, note FROM books WHERE _id=\"" + id + "\";", null);
+            Cursor cursor = db.rawQuery("SELECT _id, title, cover_url, note, url_origin FROM books WHERE _id=\"" + id + "\";", null);
             BookRecord result = null;
 
             while (cursor.moveToNext()) {
@@ -108,6 +124,7 @@ public class DBManager {
                 result.title = cursor.getString(1);
                 result.cover_url = cursor.getString(2);
                 result.note = cursor.getString(3);
+                result.url_origin = cursor.getString(4);
             }
 
             return result;

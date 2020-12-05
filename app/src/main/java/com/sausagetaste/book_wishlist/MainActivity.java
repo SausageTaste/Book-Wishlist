@@ -70,14 +70,17 @@ public class MainActivity extends AppCompatActivity implements EventManager.HTML
 
     private static class LoadHTMLTask extends AsyncTask<String, Integer, String> {
 
+        private String url;
+
         @Override
         protected String doInBackground(String... url) {
-            return this.download_html(url[0]);
+            this.url = url[0];
+            return this.download_html(this.url);
         }
 
         @Override
         protected void onPostExecute(String result) {
-            EventManager.get_inst().notify_html_loaded(result);
+            EventManager.get_inst().notify_html_loaded(result, this.url);
         }
 
         private String download_html(final String url_str) {
@@ -239,18 +242,19 @@ public class MainActivity extends AppCompatActivity implements EventManager.HTML
     }
 
     @Override
-    public void notify_html_loaded(final String html) {
-        this.process_html(html);
+    public void notify_html_loaded(final String html, final String url_origin) {
+        this.process_html(html, url_origin);
         this.update_book_list();
     }
 
-    public void process_html(final String html) {
+    public void process_html(final String html, final String url_origin) {
         BookStoreParser.Parser_HTML parser = BookStoreParser.select_html_parser(html);
 
         DBManager.BookRecord data = new DBManager.BookRecord();
         data.title = parser.find_title();
         data.cover_url = parser.find_cover_url();
         data.note = "";
+        data.url_origin = url_origin;
         this.db_man.override_record(data);
 
         this.update_book_list();

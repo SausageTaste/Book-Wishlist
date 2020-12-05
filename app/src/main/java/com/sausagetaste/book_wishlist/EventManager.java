@@ -26,7 +26,7 @@ public class EventManager {
     }
 
     interface HTMLLoadedListener {
-        void notify_html_loaded(final String html);
+        void notify_html_loaded(final String html, final String url_origin);
     }
 
 
@@ -67,9 +67,9 @@ public class EventManager {
         this.html_loaded_observers.remove(observer);
     }
 
-    public void notify_html_loaded(final String html) {
+    public void notify_html_loaded(final String html, final String url_origin) {
         for (HTMLLoadedListener x : this.html_loaded_observers) {
-            x.notify_html_loaded(html);
+            x.notify_html_loaded(html, url_origin);
         }
     }
 

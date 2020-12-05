@@ -20,7 +20,7 @@
             android:textAlignment="center"
             android:maxHeight="128dp"
             android:minHeight="128dp"
-        />
+            />
 
         <TextView
             android:id="@+id/text_view_title"
@@ -28,20 +28,14 @@
             android:layout_height="wrap_content"
             android:textSize="20sp"
             android:layout_margin="5dp"
-        />
-        <TextView
-            android:id="@+id/text_view_cover_url"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="20sp"
-            android:layout_margin="5dp"
-        />
+            />
 
         <EditText
             android:id="@+id/edit_text_note"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-        />
+            android:hint="Note can be stored here"
+            />
 
         <Button
             android:layout_width="wrap_content"
@@ -51,11 +45,18 @@
         />
 
         <Button
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:onClick="on_btn_delete_clicked"
             android:text="Delete"
-        />
+            />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="on_btn_open_url_origin"
+            android:text="Open in Browser"
+            />
 
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
