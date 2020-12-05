@@ -1,6 +1,6 @@
 <resources>
     <style name="Theme.MyColors" parent="Theme.MaterialComponents.DayNight">
-        <item name="colorPrimary">@color/almost_white</item>
+        <item name="colorPrimary">#ffaaaa</item>
         <item name="colorSurface">@color/almost_black</item>
     </style>
 

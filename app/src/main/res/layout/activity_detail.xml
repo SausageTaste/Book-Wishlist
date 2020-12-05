@@ -39,7 +39,7 @@
             android:layout_height="wrap_content"
             android:onClick="on_btn_save_clicked"
             android:text="Save"
-            android:textColor="?textColorAlertDialogListItem"/>
+        />
 
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

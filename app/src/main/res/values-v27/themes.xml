@@ -4,6 +4,5 @@
         <item name="android:statusBarColor">?colorPrimary</item>
 
         <item name="android:windowLightNavigationBar">true</item>
-        <item name="android:navigationBarColor">?colorPrimary</item>
     </style>
 </resources>
