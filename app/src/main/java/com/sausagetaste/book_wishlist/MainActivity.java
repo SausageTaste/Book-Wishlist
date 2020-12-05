@@ -158,6 +158,7 @@ public class MainActivity extends AppCompatActivity {
 
     private Vector<String> list_item_texts;
     private ArrayAdapter<String> adapter;
+    private DBManager db_man;
 
 
     // Methods
@@ -171,6 +172,7 @@ public class MainActivity extends AppCompatActivity {
         this.adapter = new ArrayAdapter<String>(
                 this, android.R.layout.simple_list_item_1, this.list_item_texts
         );
+        this.db_man = new DBManager(this);
 
         ListView lv = (ListView) this.findViewById(R.id.book_list_view);
         lv.setOnItemClickListener(new BookListView_OnClickListener(this));
@@ -179,17 +181,27 @@ public class MainActivity extends AppCompatActivity {
         FloatingActionButton fab = findViewById(R.id.floating_action_button);
         fab.setOnClickListener(new OnClickFAB(this));
 
-        for (int i = 0; i < 10000; ++i) {
-            this.list_item_texts.add("사람 " + Integer.toString(i));
-        }
+        this.update_book_list();
     }
 
     public void process_html(final String html) {
         BookStoreParser.Parser_HTML parser = BookStoreParser.select_html_parser(html);
 
-        Log.v("process_html -> html", html);
-        Log.v("process_html -> title", parser.find_title());
-        Log.v("process_html -> img url", parser.find_cover_url());
+        DBManager.BookRecord data = new DBManager.BookRecord();
+        data.title = parser.find_title();
+        data.cover_url = parser.find_cover_url();
+        data.note = "";
+        this.db_man.override_record(data);
+
+        this.update_book_list();
+    }
+
+    private void update_book_list() {
+        this.list_item_texts.clear();
+        this.db_man.get_all_titles(this.list_item_texts);
+        this.adapter.notifyDataSetChanged();
+
+        Log.v("update_book_list", Integer.toString(this.list_item_texts.size()));
     }
 
 }
