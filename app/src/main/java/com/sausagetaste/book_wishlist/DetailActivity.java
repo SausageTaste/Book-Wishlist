@@ -5,6 +5,9 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -63,6 +66,28 @@ public class DetailActivity extends AppCompatActivity implements EventManager.Im
         EventManager.get_inst().deregister_image_downloaded(this);
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.book_detail_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.action_open_web:
+                on_open_url_origin();
+                return true;
+            case R.id.action_delete:
+                this.on_delete();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
     public void on_btn_save_clicked(View v) {
         DBManager.BookRecord new_data = new DBManager.BookRecord();
         new_data.id = this.book_id;
@@ -73,12 +98,12 @@ public class DetailActivity extends AppCompatActivity implements EventManager.Im
         Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show();
     }
 
-    public void on_btn_delete_clicked(View v) {
+    public void on_delete() {
         this.db_man.delete_by_id(this.book_id);
         this.finish();
     }
 
-    public void on_btn_open_url_origin(View v) {
+    public void on_open_url_origin() {
         this.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(this.url_origin)));
     }
 

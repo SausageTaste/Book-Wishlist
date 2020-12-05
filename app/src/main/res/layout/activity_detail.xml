@@ -75,20 +75,6 @@
             android:text="Save"
         />
 
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:onClick="on_btn_delete_clicked"
-            android:text="Delete"
-            />
-
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:onClick="on_btn_open_url_origin"
-            android:text="Open in Browser"
-            />
-
             </LinearLayout>
         </ScrollView>
     </LinearLayout>
