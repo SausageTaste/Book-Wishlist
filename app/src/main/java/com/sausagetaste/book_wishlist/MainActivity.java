@@ -3,13 +3,12 @@ package com.sausagetaste.book_wishlist;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.content.ContentValues;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
@@ -18,24 +17,21 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Paths;
 import java.util.Vector;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements EventManager.HTMLLoadedListener {
 
     // Definitions
 
@@ -61,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
             }
             else {
                 Log.i("onItemClick", "Start downloading: " + file_path);
-                DownloadImageTask task = new DownloadImageTask(this.parent_activity, item_id);
+                DownloadImageTask task = new DownloadImageTask(item_id, file_path);
                 task.execute(book_record.cover_url);
             }
 
@@ -72,13 +68,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private class LoadHTMLTask extends AsyncTask<String, Integer, String> {
-
-        final private MainActivity parent_activity;
-
-        LoadHTMLTask(MainActivity activity) {
-            this.parent_activity = activity;
-        }
+    private static class LoadHTMLTask extends AsyncTask<String, Integer, String> {
 
         @Override
         protected String doInBackground(String... url) {
@@ -87,9 +77,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String result) {
-            if (null != result) {
-                this.parent_activity.process_html(result);
-            }
+            EventManager.get_inst().notify_html_loaded(result);
         }
 
         private String download_html(final String url_str) {
@@ -118,17 +106,7 @@ public class MainActivity extends AppCompatActivity {
 
                 return buf.toString();
             }
-            catch (MalformedURLException e) {
-                Toast.makeText(
-                        this.parent_activity, "Invalid url: " + url_str, Toast.LENGTH_LONG
-                ).show();
-                Log.e("Load HTML Task", e.toString());
-                return null;
-            }
             catch (Exception e) {
-                Toast.makeText(
-                        this.parent_activity, "failed to load url: " + url_str, Toast.LENGTH_LONG
-                ).show();
                 Log.e("Load HTML Task", e.toString());
                 return null;
             }
@@ -136,14 +114,14 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private class DownloadImageTask extends AsyncTask<String, Integer, String>  {
+    private static class DownloadImageTask extends AsyncTask<String, Integer, String>  {
 
-        final private MainActivity parent_activity;
         final int book_id;
+        final String file_path;
 
-        DownloadImageTask(MainActivity activity, final int book_id) {
-            this.parent_activity = activity;
+        DownloadImageTask(final int book_id, final String file_path) {
             this.book_id = book_id;
+            this.file_path = file_path;
         }
 
         @Override
@@ -155,6 +133,11 @@ public class MainActivity extends AppCompatActivity {
             return "";
         }
 
+        @Override
+        protected void onPostExecute(String result) {
+            EventManager.get_inst().notify_image_downloaded();
+        }
+
         private Bitmap get_bitmap_from_url(final String url_str) {
             try {
                 URL url = new URL(url_str);
@@ -164,45 +147,26 @@ public class MainActivity extends AppCompatActivity {
                 InputStream input = connection.getInputStream();
                 return BitmapFactory.decodeStream(input);
             }
-            catch (MalformedURLException e) {
-                Toast.makeText(
-                        this.parent_activity, "Invalid url: " + url_str, Toast.LENGTH_LONG
-                ).show();
-                Log.e("Download Image Task", e.toString());
-                return null;
-            }
             catch (Exception e) {
-                Toast.makeText(
-                        this.parent_activity, "failed to load url: " + url_str, Toast.LENGTH_LONG
-                ).show();
                 Log.e("Download Image Task", e.toString());
                 return null;
             }
         }
 
-        private boolean save_bitmap_to_dist(final Bitmap bitmap) {
+        private void save_bitmap_to_dist(final Bitmap bitmap) {
             try {
-                final String file_path = this.parent_activity.make_png_path_of_id(this.book_id);
-                FileOutputStream out = new FileOutputStream(file_path);
+                FileOutputStream out = new FileOutputStream(this.file_path);
                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
-                Log.i("Download Image Task", "Image saved: " + file_path);
-                return true;
+                Log.i("Download Image Task", "Image saved: " + this.file_path);
             }
             catch (Exception e) {
                 e.printStackTrace();
-                return false;
             }
         }
 
     }
 
     class OnClickFAB implements View.OnClickListener {
-
-        final private MainActivity parent_activity;
-
-        OnClickFAB(MainActivity parent_activity) {
-            this.parent_activity = parent_activity;
-        }
 
         @Override
         public void onClick(View view) {
@@ -211,24 +175,15 @@ public class MainActivity extends AppCompatActivity {
 
             final EditText input = new EditText(MainActivity.this);
             input.setInputType(InputType.TYPE_CLASS_TEXT);
-            //input.setText("https://ridibooks.com/books/606002239");
             builder.setView(input);
 
-            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    final String input_text = input.getText().toString();
+            builder.setPositiveButton("OK", (dialog, which) -> {
+                final String input_text = input.getText().toString();
 
-                    LoadHTMLTask task = new LoadHTMLTask(parent_activity);
-                    task.execute(input_text);
-                }
+                LoadHTMLTask task = new LoadHTMLTask();
+                task.execute(input_text);
             });
-            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.cancel();
-                }
-            });
+            builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
 
             builder.show();
         }
@@ -251,9 +206,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        this.list_item_texts = new Vector<String>();
-        this.list_item_ids = new Vector<Integer>();
-        this.adapter = new ArrayAdapter<String>(
+        this.list_item_texts = new Vector<>();
+        this.list_item_ids = new Vector<>();
+        this.adapter = new ArrayAdapter<>(
                 this, android.R.layout.simple_list_item_1, this.list_item_texts
         );
         this.db_man = new DBManager(this);
@@ -263,8 +218,9 @@ public class MainActivity extends AppCompatActivity {
         lv.setAdapter(adapter);
 
         FloatingActionButton fab = findViewById(R.id.floating_action_button);
-        fab.setOnClickListener(new OnClickFAB(this));
+        fab.setOnClickListener(new OnClickFAB());
 
+        EventManager.get_inst().register_html_loaded(this);
         this.update_book_list();
     }
 
@@ -272,6 +228,19 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
+        this.update_book_list();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        EventManager.get_inst().deregister_html_loaded(this);
+    }
+
+    @Override
+    public void notify_html_loaded(final String html) {
+        this.process_html(html);
         this.update_book_list();
     }
 
@@ -297,7 +266,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public static String make_png_path_of_id_static(final int book_id, Context context) {
-        return Paths.get(context.getFilesDir().toString(), Integer.toString(book_id) + ".png").toString();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            return Paths.get(context.getFilesDir().toString(), book_id + ".png").toString();
+        }
+        else {
+            throw new RuntimeException("Paths.get method is not supported");
+        }
     }
 
     public String make_png_path_of_id(final int book_id) {
