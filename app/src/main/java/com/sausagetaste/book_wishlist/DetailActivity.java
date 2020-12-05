@@ -1,12 +1,11 @@
 package com.sausagetaste.book_wishlist;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -46,6 +45,12 @@ public class DetailActivity extends AppCompatActivity {
         new_data.note = editText.getText().toString();
 
         this.db_man.override_record(new_data);
+        Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show();
+    }
+
+    public void on_btn_delete_clicked(View v) {
+        this.db_man.delete_by_id(this.book_id);
+        this.finish();
     }
 
 }

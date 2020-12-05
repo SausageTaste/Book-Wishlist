@@ -187,6 +187,13 @@ public class MainActivity extends AppCompatActivity {
         this.update_book_list();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        this.update_book_list();
+    }
+
     public void process_html(final String html) {
         BookStoreParser.Parser_HTML parser = BookStoreParser.select_html_parser(html);
 

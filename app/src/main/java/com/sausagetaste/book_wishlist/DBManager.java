@@ -123,6 +123,11 @@ public class DBManager {
             }
         }
 
+        public boolean delete_by_id(final int id) {
+            SQLiteDatabase db = this.getWritableDatabase();
+            return db.delete("books", "_id = ?", new String[]{Integer.toString(id)}) > 0;
+        }
+
     }
 
 
@@ -157,6 +162,10 @@ public class DBManager {
 
     public void get_all_titles(final Vector<Integer> id_list, final Vector<String> title_list) {
         helper.get_all_id_title_pairs(id_list, title_list);
+    }
+
+    public void delete_by_id(final int id) {
+        this.helper.delete_by_id(id);
     }
 
 }

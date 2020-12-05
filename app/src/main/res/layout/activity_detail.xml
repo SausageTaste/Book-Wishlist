@@ -41,5 +41,12 @@
             android:text="Save"
         />
 
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="on_btn_delete_clicked"
+            android:text="Delete"
+        />
+
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
