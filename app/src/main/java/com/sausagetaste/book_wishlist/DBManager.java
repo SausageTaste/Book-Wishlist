@@ -21,6 +21,9 @@ public class DBManager {
 
         public String title = null;
         public String cover_url = null;
+        public Double rating_normalized = null;
+        public String isbn = null;
+        public String description = null;
 
         public String note = null;
 
@@ -42,6 +45,9 @@ public class DBManager {
 
                     "title TEXT, " +
                     "cover_url TEXT, " +
+                    "rating_normalized REAL, " +
+                    "isbn TEXT, " +
+                    "description TEXT, " +
 
                     "note TEXT," +
 
@@ -63,6 +69,10 @@ public class DBManager {
                 "null, \"" +
                 info.title + "\", \"" +
                 info.cover_url + "\", \"" +
+                info.rating_normalized + "\", \"" +
+                info.isbn + "\", \"" +
+                info.description + "\", \"" +
+
                 info.note + "\", \"" +
                 info.url_origin +
             "\")");
@@ -80,6 +90,15 @@ public class DBManager {
             if (null != info.cover_url) {
                 cv.put("cover_url", info.cover_url);
             }
+            if (null != info.rating_normalized) {
+                cv.put("rating_normalized", info.rating_normalized);
+            }
+            if (null != info.isbn) {
+                cv.put("isbn", info.isbn);
+            }
+            if (null != info.description) {
+                cv.put("description", info.description);
+            }
             if (null != info.note) {
                 cv.put("note", info.note);
             }
@@ -92,7 +111,7 @@ public class DBManager {
 
         public BookRecord search_with_title(final String title) {
             SQLiteDatabase db = this.getReadableDatabase();
-            Cursor cursor = db.rawQuery("SELECT _id, title, cover_url, note, url_origin FROM books WHERE title=\"" + title + "\";", null);
+            Cursor cursor = db.rawQuery("SELECT _id, title, cover_url, rating_normalized, isbn, description, note, url_origin FROM books WHERE title=\"" + title + "\";", null);
             BookRecord result = null;
 
             while (cursor.moveToNext()) {
@@ -103,8 +122,11 @@ public class DBManager {
                 result.id = cursor.getInt(0);
                 result.title = cursor.getString(1);
                 result.cover_url = cursor.getString(2);
-                result.note = cursor.getString(3);
-                result.url_origin = cursor.getString(4);
+                result.rating_normalized = cursor.getDouble(3);
+                result.isbn = cursor.getString(4);
+                result.description = cursor.getString(5);
+                result.note = cursor.getString(6);
+                result.url_origin = cursor.getString(7);
             }
 
             return result;
@@ -112,7 +134,7 @@ public class DBManager {
 
         public BookRecord search_with_id(final int id) {
             SQLiteDatabase db = this.getReadableDatabase();
-            Cursor cursor = db.rawQuery("SELECT _id, title, cover_url, note, url_origin FROM books WHERE _id=\"" + id + "\";", null);
+            Cursor cursor = db.rawQuery("SELECT _id, title, cover_url, rating_normalized, isbn, description, note, url_origin FROM books WHERE _id=\"" + id + "\";", null);
             BookRecord result = null;
 
             while (cursor.moveToNext()) {
@@ -123,8 +145,11 @@ public class DBManager {
                 result.id = cursor.getInt(0);
                 result.title = cursor.getString(1);
                 result.cover_url = cursor.getString(2);
-                result.note = cursor.getString(3);
-                result.url_origin = cursor.getString(4);
+                result.rating_normalized = cursor.getDouble(3);
+                result.isbn = cursor.getString(4);
+                result.description = cursor.getString(5);
+                result.note = cursor.getString(6);
+                result.url_origin = cursor.getString(7);
             }
 
             return result;

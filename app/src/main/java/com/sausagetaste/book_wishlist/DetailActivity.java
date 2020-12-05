@@ -37,7 +37,16 @@ public class DetailActivity extends AppCompatActivity implements EventManager.Im
 
         {
             TextView textView = this.findViewById(R.id.text_view_title);
-            textView.setText(book_info.title);
+            textView.setText("Title : " + book_info.title);
+
+            textView = this.findViewById(R.id.text_view_rating_normalized);
+            textView.setText("Rating : " + book_info.rating_normalized.toString());
+
+            textView = this.findViewById(R.id.text_view_isbn);
+            textView.setText("ISBN : " + book_info.isbn);
+
+            textView = this.findViewById(R.id.text_view_description);
+            textView.setText("Description : " + book_info.description);
 
             EditText editText = this.findViewById(R.id.edit_text_note);
             editText.setText(book_info.note);

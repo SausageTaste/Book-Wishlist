@@ -253,6 +253,9 @@ public class MainActivity extends AppCompatActivity implements EventManager.HTML
         DBManager.BookRecord data = new DBManager.BookRecord();
         data.title = parser.find_title();
         data.cover_url = parser.find_cover_url();
+        data.rating_normalized = parser.find_rating_normalized();
+        data.isbn = parser.find_isbn();
+        data.description = parser.find_description();
         data.note = "";
         data.url_origin = url_origin;
         this.db_man.override_record(data);

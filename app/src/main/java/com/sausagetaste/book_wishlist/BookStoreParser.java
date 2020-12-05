@@ -15,6 +15,9 @@ public class BookStoreParser {
     interface Parser_HTML {
         String find_title();
         String find_cover_url();
+        double find_rating_normalized();
+        String find_isbn();
+        String find_description();
     }
 
     private static class Parser_Ridibooks implements Parser_HTML {
@@ -33,6 +36,31 @@ public class BookStoreParser {
         @Override
         public String find_cover_url() {
             return this.parse_content("og:image");
+        }
+
+        @Override
+        public double find_rating_normalized() {
+            final String found = this.parse_content("rating:normalized_value");
+            if (null == found) {
+                return -1;
+            }
+
+            try {
+                return Double.parseDouble(found);
+            }
+            catch (Exception e) {
+                return -1;
+            }
+        }
+
+        @Override
+        public String find_isbn() {
+            return this.parse_content("books:isbn");
+        }
+
+        @Override
+        public String find_description() {
+            return this.parse_content("og:description");
         }
 
         private String parse_content(final String pre_content_id) {
@@ -64,6 +92,7 @@ public class BookStoreParser {
         switch (company) {
 
         case ridibooks:
+            Log.v("select_html_parser", html);
             return new Parser_Ridibooks(html);
         case unknown:
         default:
