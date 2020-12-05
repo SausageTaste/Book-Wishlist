@@ -100,6 +100,11 @@ public class DetailActivity extends AppCompatActivity implements EventManager.Im
 
     public void on_delete() {
         this.db_man.delete_by_id(this.book_id);
+
+        final String file_path = MainActivity.make_png_path_of_id_static(this.book_id, this);
+        File file = new File(file_path);
+        final boolean deleted = file.delete();
+
         this.finish();
     }
 
