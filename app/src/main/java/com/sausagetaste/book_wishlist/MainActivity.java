@@ -14,12 +14,14 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Vector;
 
@@ -48,7 +50,13 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private static class DownloadTask extends AsyncTask<String, Integer, String> {
+    private class LoadHTMLTask extends AsyncTask<String, Integer, String> {
+
+        final private MainActivity parent_activity;
+
+        LoadHTMLTask(MainActivity activity) {
+            this.parent_activity = activity;
+        }
 
         @Override
         protected String doInBackground(String... url) {
@@ -57,11 +65,8 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String result) {
-            if (null == result) {
-                Log.v("Download Task", "Failed to get html");
-            }
-            else {
-                Log.v("Download Task", result);
+            if (null != result) {
+                this.parent_activity.process_html(result);
             }
         }
 
@@ -91,7 +96,17 @@ public class MainActivity extends AppCompatActivity {
 
                 return buf.toString();
             }
+            catch (MalformedURLException e) {
+                Toast.makeText(
+                        this.parent_activity, "Invalid url: " + url_str, Toast.LENGTH_LONG
+                ).show();
+                Log.e("Download Task", e.toString());
+                return null;
+            }
             catch (Exception e) {
+                Toast.makeText(
+                        this.parent_activity, "failed to load url: " + url_str, Toast.LENGTH_LONG
+                ).show();
                 Log.e("Download Task", e.toString());
                 return null;
             }
@@ -100,6 +115,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     class OnClickFAB implements View.OnClickListener {
+
+        final private MainActivity parent_activity;
+
+        OnClickFAB(MainActivity parent_activity) {
+            this.parent_activity = parent_activity;
+        }
 
         @Override
         public void onClick(View view) {
@@ -116,7 +137,7 @@ public class MainActivity extends AppCompatActivity {
                 public void onClick(DialogInterface dialog, int which) {
                     final String input_text = input.getText().toString();
 
-                    DownloadTask task = new DownloadTask();
+                    LoadHTMLTask task = new LoadHTMLTask(parent_activity);
                     task.execute(input_text);
                 }
             });
@@ -156,11 +177,15 @@ public class MainActivity extends AppCompatActivity {
         lv.setAdapter(adapter);
 
         FloatingActionButton fab = findViewById(R.id.floating_action_button);
-        fab.setOnClickListener(new OnClickFAB());
+        fab.setOnClickListener(new OnClickFAB(this));
 
         for (int i = 0; i < 10000; ++i) {
             this.list_item_texts.add("사람 " + Integer.toString(i));
         }
+    }
+
+    public void process_html(final String html) {
+        Log.v("Process HTML", html);
     }
 
 }
