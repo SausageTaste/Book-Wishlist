@@ -1,5 +1,6 @@
 package com.sausagetaste.book_wishlist;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -16,11 +17,14 @@ public class DBManager {
     private static final int DB_VERSION = 2;
 
     public static class BookRecord {
+        public Integer id;
+
         public String title;
         public String cover_url;
 
         public String note;
     }
+
 
     private class DBHelper extends SQLiteOpenHelper {
 
@@ -45,14 +49,35 @@ public class DBManager {
             db.execSQL("DROP TABLE IF EXISTS books");
         }
 
+
         public void insert(final BookRecord info) {
+            assert null == info.id;
             SQLiteDatabase db = this.getWritableDatabase();
             db.execSQL("INSERT INTO books VALUES (" + "null, \"" + info.title + "\", \"" + info.cover_url + "\", \"" + info.note + "\")");
         }
 
-        public BookRecord search(final String title) {
+        public void update_row(final BookRecord info) {
+            assert null != info.id;
+            SQLiteDatabase db = this.getWritableDatabase();
+
+            ContentValues cv = new ContentValues();
+
+            if (null != info.title) {
+                cv.put("title", info.title);
+            }
+            if (null != info.cover_url) {
+                cv.put("cover_url", info.cover_url);
+            }
+            if (null != info.note) {
+                cv.put("note", info.note);
+            }
+
+            db.update("books", cv, "_id = ?", new String[]{Integer.toString(info.id)});
+        }
+
+        public BookRecord search_with_title(final String title) {
             SQLiteDatabase db = this.getReadableDatabase();
-            Cursor cursor = db.rawQuery("SELECT title, cover_url, note FROM books WHERE title=\"" + title + "\";", null);
+            Cursor cursor = db.rawQuery("SELECT _id, title, cover_url, note FROM books WHERE title=\"" + title + "\";", null);
             BookRecord result = null;
 
             while (cursor.moveToNext()) {
@@ -60,21 +85,32 @@ public class DBManager {
                     result = new BookRecord();
                 }
 
-                result.title = cursor.getString(0);
-                result.cover_url = cursor.getString(1);
-                result.note = cursor.getString(2);
+                result.id = cursor.getInt(0);
+                result.title = cursor.getString(1);
+                result.cover_url = cursor.getString(2);
+                result.note = cursor.getString(3);
             }
 
             return result;
         }
 
-        public void select_all_in_column(final String column_name, final Vector<String> result) {
+        public BookRecord search_with_id(final int id) {
             SQLiteDatabase db = this.getReadableDatabase();
+            Cursor cursor = db.rawQuery("SELECT _id, title, cover_url, note FROM books WHERE _id=\"" + id + "\";", null);
+            BookRecord result = null;
 
-            Cursor cursor = db.rawQuery("SELECT \"" + column_name + "\" FROM books", null);
             while (cursor.moveToNext()) {
-                result.add(cursor.getString(0));
+                if (null == result) {
+                    result = new BookRecord();
+                }
+
+                result.id = cursor.getInt(0);
+                result.title = cursor.getString(1);
+                result.cover_url = cursor.getString(2);
+                result.note = cursor.getString(3);
             }
+
+            return result;
         }
 
         public void get_all_id_title_pairs(final Vector<Integer> id_list, final Vector<String> title_list) {
@@ -101,12 +137,22 @@ public class DBManager {
     }
 
     public boolean override_record(final BookRecord data) {
-        helper.insert(data);
+        if (null == data.id) {
+            helper.insert(data);
+        }
+        else {
+            helper.update_row(data);
+        }
+
         return true;
     }
 
-    public BookRecord get_record(final String title) {
-        return helper.search(title);
+    public BookRecord get_record_with_title(final String title) {
+        return helper.search_with_title(title);
+    }
+
+    public BookRecord get_record_with_id(final int id) {
+        return helper.search_with_id(id);
     }
 
     public void get_all_titles(final Vector<Integer> id_list, final Vector<String> title_list) {

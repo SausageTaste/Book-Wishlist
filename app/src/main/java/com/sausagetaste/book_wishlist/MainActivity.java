@@ -30,24 +30,25 @@ public class MainActivity extends AppCompatActivity {
 
     // Definitions
 
-    public static final String EXTRA_MESSAGE = "com.sausagetaste.book_wishlist.MESSAGE";
+    public static final String EXTRA_BOOK_ID = "com.sausagetaste.book_wishlist.BOOK_ID";
 
     private class BookListView_OnClickListener implements AdapterView.OnItemClickListener {
 
-        final private AppCompatActivity parent_activity;
+        final private MainActivity parent_activity;
 
-        BookListView_OnClickListener(AppCompatActivity activity) {
+        BookListView_OnClickListener(MainActivity activity) {
             this.parent_activity = activity;
         }
 
         @Override
         public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-            String item_text = adapter.getItem(i);
+            final int item_id = this.parent_activity.list_item_ids.elementAt(i);
 
             Intent intent = new Intent(this.parent_activity, DetailActivity.class);
-            intent.putExtra(EXTRA_MESSAGE, item_text);
+            intent.putExtra(EXTRA_BOOK_ID, item_id);
             startActivity(intent);
         }
+
     }
 
     private class LoadHTMLTask extends AsyncTask<String, Integer, String> {
