@@ -2,6 +2,7 @@ package com.sausagetaste.book_wishlist;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -16,9 +17,11 @@ public class MainActivity extends AppCompatActivity {
 
     // Definitions
 
+    public static final String EXTRA_MESSAGE = "com.sausagetaste.book_wishlist.MESSAGE";
+
     private class BookListView_OnClickListener implements AdapterView.OnItemClickListener {
 
-        private AppCompatActivity parent_activity;
+        final private AppCompatActivity parent_activity;
 
         BookListView_OnClickListener(AppCompatActivity activity) {
             this.parent_activity = activity;
@@ -27,7 +30,10 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
             String item_text = adapter.getItem(i);
-            Toast.makeText(this.parent_activity, item_text, Toast.LENGTH_LONG).show();
+
+            Intent intent = new Intent(this.parent_activity, DetailActivity.class);
+            intent.putExtra(EXTRA_MESSAGE, item_text);
+            startActivity(intent);
         }
     }
 
