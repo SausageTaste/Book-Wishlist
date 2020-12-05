@@ -129,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
 
             final EditText input = new EditText(MainActivity.this);
             input.setInputType(InputType.TYPE_CLASS_TEXT);
-            input.setText("https://ridibooks.com/books/1811176154");
+            input.setText("https://ridibooks.com/books/606002239");
             builder.setView(input);
 
             builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
@@ -185,7 +185,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void process_html(final String html) {
-        Log.v("Process HTML", html);
+        BookStoreParser.Parser_HTML parser = BookStoreParser.select_html_parser(html);
+
+        Log.v("process_html -> html", html);
+        Log.v("process_html -> title", parser.find_title());
+        Log.v("process_html -> img url", parser.find_cover_url());
     }
 
 }
