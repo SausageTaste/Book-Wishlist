@@ -174,7 +174,7 @@ public class MainActivity extends AppCompatActivity implements EventManager.HTML
         @Override
         public void onClick(View view) {
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this, R.style.AlertDialogTheme);
-            builder.setTitle("Title");
+            builder.setTitle("Enter URL of book");
 
             final EditText input = new EditText(MainActivity.this);
             input.setInputType(InputType.TYPE_CLASS_TEXT);
