@@ -1,13 +1,13 @@
 package com.sausagetaste.book_wishlist;
 
-
 import android.util.Log;
+
 
 public class BookStoreParser {
 
     //// Definitions
 
-    enum Company {
+    private enum Company {
         ridibooks,
         unknown,
     }
