@@ -5,6 +5,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.InputType;
@@ -18,11 +20,16 @@ import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.util.Vector;
 
 
@@ -43,6 +50,18 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
             final int item_id = this.parent_activity.list_item_ids.elementAt(i);
+            final DBManager.BookRecord book_record = this.parent_activity.db_man.get_record_with_id(item_id);
+
+            final String file_path = this.parent_activity.make_png_path_of_id(item_id);
+            File file = new File(file_path);
+            if (file.exists()) {
+                Log.i("onItemClick", "File exists: " + file_path);
+            }
+            else {
+                Log.i("onItemClick", "Start downloading: " + file_path);
+                DownloadImageTask task = new DownloadImageTask(this.parent_activity, item_id);
+                task.execute(book_record.cover_url);
+            }
 
             Intent intent = new Intent(this.parent_activity, DetailActivity.class);
             intent.putExtra(EXTRA_BOOK_ID, item_id);
@@ -101,15 +120,75 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(
                         this.parent_activity, "Invalid url: " + url_str, Toast.LENGTH_LONG
                 ).show();
-                Log.e("Download Task", e.toString());
+                Log.e("Load HTML Task", e.toString());
                 return null;
             }
             catch (Exception e) {
                 Toast.makeText(
                         this.parent_activity, "failed to load url: " + url_str, Toast.LENGTH_LONG
                 ).show();
-                Log.e("Download Task", e.toString());
+                Log.e("Load HTML Task", e.toString());
                 return null;
+            }
+        }
+
+    }
+
+    private class DownloadImageTask extends AsyncTask<String, Integer, String>  {
+
+        final private MainActivity parent_activity;
+        final int book_id;
+
+        DownloadImageTask(MainActivity activity, final int book_id) {
+            this.parent_activity = activity;
+            this.book_id = book_id;
+        }
+
+        @Override
+        protected String doInBackground(String... strings) {
+            Bitmap bitmap = this.get_bitmap_from_url(strings[0]);
+            Log.i("Download Image Task", "Image downloaded: " + strings[0] + ", " + bitmap.getWidth() + ", " + bitmap.getHeight());
+
+            this.save_bitmap_to_dist(bitmap);
+            return "";
+        }
+
+        private Bitmap get_bitmap_from_url(final String url_str) {
+            try {
+                URL url = new URL(url_str);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setDoInput(true);
+                connection.connect();
+                InputStream input = connection.getInputStream();
+                return BitmapFactory.decodeStream(input);
+            }
+            catch (MalformedURLException e) {
+                Toast.makeText(
+                        this.parent_activity, "Invalid url: " + url_str, Toast.LENGTH_LONG
+                ).show();
+                Log.e("Download Image Task", e.toString());
+                return null;
+            }
+            catch (Exception e) {
+                Toast.makeText(
+                        this.parent_activity, "failed to load url: " + url_str, Toast.LENGTH_LONG
+                ).show();
+                Log.e("Download Image Task", e.toString());
+                return null;
+            }
+        }
+
+        private boolean save_bitmap_to_dist(final Bitmap bitmap) {
+            try {
+                final String file_path = this.parent_activity.make_png_path_of_id(this.book_id);
+                FileOutputStream out = new FileOutputStream(file_path);
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+                Log.i("Download Image Task", "Image saved: " + file_path);
+                return true;
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+                return false;
             }
         }
 
@@ -213,6 +292,10 @@ public class MainActivity extends AppCompatActivity {
         this.adapter.notifyDataSetChanged();
 
         Log.v("update_book_list", Integer.toString(this.list_item_texts.size()));
+    }
+
+    public String make_png_path_of_id(final int book_id) {
+        return Paths.get(this.getFilesDir().toString(), Integer.toString(book_id) + ".png").toString();
     }
 
 }
