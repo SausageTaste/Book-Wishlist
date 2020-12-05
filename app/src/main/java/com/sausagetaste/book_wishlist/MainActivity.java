@@ -3,6 +3,8 @@ package com.sausagetaste.book_wishlist;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -294,8 +296,12 @@ public class MainActivity extends AppCompatActivity {
         Log.v("update_book_list", Integer.toString(this.list_item_texts.size()));
     }
 
+    public static String make_png_path_of_id_static(final int book_id, Context context) {
+        return Paths.get(context.getFilesDir().toString(), Integer.toString(book_id) + ".png").toString();
+    }
+
     public String make_png_path_of_id(final int book_id) {
-        return Paths.get(this.getFilesDir().toString(), Integer.toString(book_id) + ".png").toString();
+        return make_png_path_of_id_static(book_id, this);
     }
 
 }

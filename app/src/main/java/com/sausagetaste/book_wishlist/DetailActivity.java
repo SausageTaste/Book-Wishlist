@@ -1,13 +1,19 @@
 package com.sausagetaste.book_wishlist;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import java.io.File;
 
 
 public class DetailActivity extends AppCompatActivity {
@@ -35,6 +41,14 @@ public class DetailActivity extends AppCompatActivity {
         {
             EditText editText = this.findViewById(R.id.edit_text_note);
             editText.setText(book_info.note);
+        }
+
+        final String file_path = MainActivity.make_png_path_of_id_static(this.book_id, this);
+        File file = new File(file_path);
+        if (file.exists()) {
+            Bitmap myBitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
+            ImageView myImage = (ImageView) findViewById(R.id.book_cover_view);
+            myImage.setImageBitmap(myBitmap);
         }
     }
 
