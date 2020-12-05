@@ -5,8 +5,10 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.InputType;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -15,6 +17,10 @@ import android.widget.ListView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.Vector;
 
 
@@ -42,6 +48,57 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private static class DownloadTask extends AsyncTask<String, Integer, String> {
+
+        @Override
+        protected String doInBackground(String... url) {
+            return this.download_html(url[0]);
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            if (null == result) {
+                Log.v("Download Task", "Failed to get html");
+            }
+            else {
+                Log.v("Download Task", result);
+            }
+        }
+
+        private String download_html(final String url_str) {
+            try {
+                URL url = new URL(url_str);
+
+                HttpURLConnection url_conn = (HttpURLConnection) url.openConnection();
+                url_conn.setRequestProperty(
+                        "User-Agent",
+                        "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:63.0) Gecko/20100101 Firefox/63.0"
+                );
+
+                url_conn.connect();
+                Reader r = new InputStreamReader(url_conn.getInputStream());
+                StringBuilder buf = new StringBuilder();
+
+                while (true) {
+                    int ch = r.read();
+                    if (ch < 0) {
+                        break;
+                    }
+                    else {
+                        buf.append((char) ch);
+                    }
+                }
+
+                return buf.toString();
+            }
+            catch (Exception e) {
+                Log.e("Download Task", e.toString());
+                return null;
+            }
+        }
+
+    }
+
     class OnClickFAB implements View.OnClickListener {
 
         @Override
@@ -51,12 +108,16 @@ public class MainActivity extends AppCompatActivity {
 
             final EditText input = new EditText(MainActivity.this);
             input.setInputType(InputType.TYPE_CLASS_TEXT);
+            input.setText("https://ridibooks.com/books/1811176154");
             builder.setView(input);
 
             builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     final String input_text = input.getText().toString();
+
+                    DownloadTask task = new DownloadTask();
+                    task.execute(input_text);
                 }
             });
             builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
