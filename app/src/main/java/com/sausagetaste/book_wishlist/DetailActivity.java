@@ -55,9 +55,8 @@ public class DetailActivity extends AppCompatActivity implements EventManager.Im
             editText.setText(book_info.note);
         }
 
-        if (!this.set_cover_img_if_exists()) {
-            EventManager.get_inst().register_image_downloaded(this);
-        }
+        this.set_cover_img_if_exists();
+        EventManager.get_inst().register_image_downloaded(this);
     }
 
     @Override
