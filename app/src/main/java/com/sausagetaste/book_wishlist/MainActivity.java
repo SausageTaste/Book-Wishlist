@@ -129,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
 
             final EditText input = new EditText(MainActivity.this);
             input.setInputType(InputType.TYPE_CLASS_TEXT);
-            input.setText("https://ridibooks.com/books/606002239");
+            //input.setText("https://ridibooks.com/books/606002239");
             builder.setView(input);
 
             builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
@@ -157,6 +157,7 @@ public class MainActivity extends AppCompatActivity {
     // Attributes
 
     private Vector<String> list_item_texts;
+    private Vector<Integer> list_item_ids;
     private ArrayAdapter<String> adapter;
     private DBManager db_man;
 
@@ -169,6 +170,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         this.list_item_texts = new Vector<String>();
+        this.list_item_ids = new Vector<Integer>();
         this.adapter = new ArrayAdapter<String>(
                 this, android.R.layout.simple_list_item_1, this.list_item_texts
         );
@@ -198,7 +200,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void update_book_list() {
         this.list_item_texts.clear();
-        this.db_man.get_all_titles(this.list_item_texts);
+        this.list_item_ids.clear();
+        this.db_man.get_all_titles(this.list_item_ids, this.list_item_texts);
         this.adapter.notifyDataSetChanged();
 
         Log.v("update_book_list", Integer.toString(this.list_item_texts.size()));

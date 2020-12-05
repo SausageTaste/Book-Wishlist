@@ -77,6 +77,16 @@ public class DBManager {
             }
         }
 
+        public void get_all_id_title_pairs(final Vector<Integer> id_list, final Vector<String> title_list) {
+            SQLiteDatabase db = this.getReadableDatabase();
+
+            Cursor cursor = db.rawQuery("SELECT _id, title FROM books", null);
+            while (cursor.moveToNext()) {
+                id_list.add(cursor.getInt(0));
+                title_list.add(cursor.getString(1));
+            }
+        }
+
     }
 
 
@@ -99,8 +109,8 @@ public class DBManager {
         return helper.search(title);
     }
 
-    public void get_all_titles(final Vector<String> result) {
-        helper.select_all_in_column("title", result);
+    public void get_all_titles(final Vector<Integer> id_list, final Vector<String> title_list) {
+        helper.get_all_id_title_pairs(id_list, title_list);
     }
 
 }
